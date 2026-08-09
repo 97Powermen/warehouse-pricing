@@ -28,6 +28,10 @@
   .badge-norm { background:linear-gradient(135deg,#dbeafe,#bfdbfe); color:#1e40af; }
   .badge-pnp { background:#dbeafe; color:#1d4ed8; }
   .badge-njny { background:#ffedd5; color:#c2410c; }
+  .head-right { display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+  .home-btn { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#fff; text-decoration:none; background:linear-gradient(135deg,#0ea5e9,#2563eb); padding:9px 16px; border-radius:11px; box-shadow:0 6px 16px rgba(14,165,233,.3); transition:.22s; white-space:nowrap; }
+  .home-btn:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(14,165,233,.42); }
+  .tabs .home-btn { padding:8px 14px; font-size:12.5px; }
 
   /* ===== Tabs ===== */
   .tabs { max-width:1440px; margin:0 auto; padding:12px 28px 14px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
@@ -203,6 +207,7 @@
       <button class="tab active" onclick="switchTab('overview')">📦 产品总览</button>
       <button class="tab" onclick="switchTab('calc')">🧮 费用模拟计算</button>
     </div>
+    <a class="home-btn" href="https://97powermen.github.io/supply-chain-hub/" target="_blank" rel="noopener">🏠 主页</a>
     <div class="unit-toggle">
       <span class="ut-label">升级产品升级类型</span>
       <div class="ut-switch">
