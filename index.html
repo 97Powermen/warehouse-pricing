@@ -136,7 +136,13 @@
 
   /* ===== Overview cards (reuse .card style) ===== */
   .overview-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; align-items:stretch; }
+  .overview-grid.cols-4 { grid-template-columns:repeat(4,1fr); }
   .overview-grid .card { min-height:100%; }
+
+  /* Column toggle for overview cards */
+  .col-toggle { display:inline-flex; background:#f1f5f9; border-radius:10px; padding:4px; gap:4px; }
+  .col-toggle button { border:none; background:transparent; padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:700; color:#64748b; cursor:pointer; transition:.18s; }
+  .col-toggle button.active { background:#fff; color:var(--blue); box-shadow:0 2px 6px rgba(15,23,42,.08); }
 
   /* ===== Table ===== */
   table { width:100%; border-collapse:collapse; font-size:13px; }
@@ -287,7 +293,7 @@
       <div class="sec-head">
         <div>
           <h2 id="heroTitle">📊 场景费用对比总览</h2>
-          <div class="desc">当前筛选产品的各场景平均费用（美元）。柱高为相对高度，数字为精确金额。</div>
+          <div class="desc">当前筛选产品的各场景平均费用（<span id="heroUnitName">美元</span>）。柱高为相对高度，数字为精确金额。</div>
         </div>
         <span class="badge badge-pnp" id="unitLabel">套装模式</span>
       </div>
@@ -302,13 +308,17 @@
     <div class="section">
       <div class="sec-head">
         <div><h2>🗂 产品总览卡片</h2><div class="desc">共 <b id="ovCount">0</b> 个产品。</div></div>
+        <div class="col-toggle" id="colToggle">
+          <button id="btnCol2" onclick="setOverviewCols(2)">2列</button>
+          <button id="btnCol4" onclick="setOverviewCols(4)">4列</button>
+        </div>
       </div>
       <div class="overview-grid" id="overviewGrid"></div>
     </div>
 
     <div class="section">
       <h2>📋 完整价格明细表</h2>
-      <div class="desc">全部 6 个场景的精确价格（单位：美元）。</div>
+      <div class="desc">全部 6 个场景的精确价格（单位：<span id="tableUnitName">美元</span>）。</div>
       <div style="overflow:auto; max-height:520px; margin-top:8px; border:1px solid var(--line); border-radius:12px;">
         <table id="dataTable">
           <thead id="dataHead"></thead>
@@ -450,6 +460,12 @@ function currencySymbol(){
   if(label==='EU') return '€';
   if(label==='UK') return '£';
   return '$';
+}
+function currencyName(){
+  const label = (DATA.regions[currentRegion].region_label || 'US').toUpperCase();
+  if(label==='EU') return '欧元';
+  if(label==='UK') return '英镑';
+  return '美元';
 }
 function fmt(v){ return v==null ? '—' : currencySymbol()+Number(v).toFixed(2); }
 
@@ -706,6 +722,14 @@ function renderFee(){
 }
 
 /* ===== 全局：单位 / 区域 / 页面切换 / 悬浮 ===== */
+function setOverviewCols(n, persist){
+  if(persist==null) persist = true;
+  const grid = document.getElementById('overviewGrid');
+  grid.classList.toggle('cols-4', n===4);
+  document.getElementById('btnCol2').classList.toggle('active', n===2);
+  document.getElementById('btnCol4').classList.toggle('active', n===4);
+  if(persist) localStorage.setItem('ovCols', String(n));
+}
 function setUnit(u){
   unit = u;
   document.getElementById('btnSet').className = u==='套装'?'active':'';
@@ -731,6 +755,14 @@ function setRegion(rk){
   buildCalcWhOptions();
   // 单仓时隐藏对比说明
   document.getElementById('ovNote').style.display = reg.compare ? '' : 'none';
+  // 卡片列数：优先使用用户保存的选择；默认单仓 4 列、对比仓 2 列
+  const savedCols = localStorage.getItem('ovCols');
+  const preferCols = savedCols ? parseInt(savedCols,10) : (reg.compare ? 2 : 4);
+  setOverviewCols(preferCols, false);
+  // 同步单位名称文案
+  const cname = currencyName();
+  document.getElementById('heroUnitName').textContent = cname;
+  document.getElementById('tableUnitName').textContent = cname;
   renderStats();
   renderOverviewAll();
   renderCalc();
