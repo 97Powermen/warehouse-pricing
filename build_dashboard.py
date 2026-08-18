@@ -145,19 +145,31 @@ def extract_fee_note():
     wb = load_workbook(EXCEL_PATH, data_only=True)
     ws = wb['收费说明']
     label_text = ws['A1'].value
-    label_headers = [ws.cell(row=2, column=c).value for c in range(1, 9)]
+    # 动态确定贴标费用表列数（以表头行第2行为准，遇到空列即止）
+    label_ncol = 0
+    for c in range(1, 30):
+        if ws.cell(row=2, column=c).value is None:
+            break
+        label_ncol = c
+    label_headers = [ws.cell(row=2, column=c).value for c in range(1, label_ncol + 1)]
     label_rows = []
     for r in (3, 4, 5):
-        raw = [ws.cell(row=r, column=c).value for c in range(1, 9)]
+        raw = [ws.cell(row=r, column=c).value for c in range(1, label_ncol + 1)]
         region = str(raw[0]).strip() if raw[0] else ''
         symbol = symbol_for_region(region)
         label_rows.append([raw[0]] + [format_fee_value(v, symbol) for v in raw[1:]])
 
     upgrade_text = ws['A8'].value
-    upgrade_headers = [ws.cell(row=9, column=c).value for c in range(1, 10)]
+    # 动态确定升级费用表列数（以表头行第9行为准）
+    upgrade_ncol = 0
+    for c in range(1, 30):
+        if ws.cell(row=9, column=c).value is None:
+            break
+        upgrade_ncol = c
+    upgrade_headers = [ws.cell(row=9, column=c).value for c in range(1, upgrade_ncol + 1)]
     # 升级费用各列所属区域：根据表头文字判断（德仓/EU -> €，英仓/UK -> £，其余 -> $）
     upgrade_col_symbols = []
-    for c in range(2, 10):
+    for c in range(2, upgrade_ncol + 1):
         h = str(ws.cell(row=9, column=c).value or '').upper()
         if '德' in h or 'EU' in h:
             upgrade_col_symbols.append('€')
@@ -167,7 +179,7 @@ def extract_fee_note():
             upgrade_col_symbols.append('$')
     upgrade_rows = []
     for r in (10, 11):
-        raw = [ws.cell(row=r, column=c).value for c in range(1, 10)]
+        raw = [ws.cell(row=r, column=c).value for c in range(1, upgrade_ncol + 1)]
         upgrade_rows.append([raw[0]] + [format_fee_value(v, upgrade_col_symbols[i]) for i, v in enumerate(raw[1:])])
 
     return {
