@@ -445,7 +445,13 @@ function priceOf(item, idx, wh){
   const v = s[wh][unitKey()];
   return (v===null || v===undefined) ? null : v;
 }
-function fmt(v){ return v==null ? '—' : '$'+Number(v).toFixed(2); }
+function currencySymbol(){
+  const label = (DATA.regions[currentRegion].region_label || 'US').toUpperCase();
+  if(label==='EU') return '€';
+  if(label==='UK') return '£';
+  return '$';
+}
+function fmt(v){ return v==null ? '—' : currencySymbol()+Number(v).toFixed(2); }
 
 /* ===== 筛选（按当前区域） ===== */
 function getOverviewFiltered(){
@@ -725,6 +731,7 @@ function setRegion(rk){
   buildCalcWhOptions();
   // 单仓时隐藏对比说明
   document.getElementById('ovNote').style.display = reg.compare ? '' : 'none';
+  renderStats();
   renderOverviewAll();
   renderCalc();
 }

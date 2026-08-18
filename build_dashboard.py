@@ -123,6 +123,24 @@ def extract_region(cfg):
     return products
 
 
+def symbol_for_region(region):
+    region = str(region).strip().upper()
+    if region == 'EU':
+        return '€'
+    if region == 'UK':
+        return '£'
+    return '$'
+
+
+def format_fee_value(v, symbol):
+    """给数字值追加货币符号；非数字原样返回"""
+    if v is None:
+        return ''
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
+        return f"{symbol}{v}"
+    return v
+
+
 def extract_fee_note():
     wb = load_workbook(EXCEL_PATH, data_only=True)
     ws = wb['收费说明']
@@ -130,12 +148,28 @@ def extract_fee_note():
     label_headers = [ws.cell(row=2, column=c).value for c in range(1, 9)]
     label_rows = []
     for r in (3, 4, 5):
-        label_rows.append([ws.cell(row=r, column=c).value for c in range(1, 9)])
+        raw = [ws.cell(row=r, column=c).value for c in range(1, 9)]
+        region = str(raw[0]).strip() if raw[0] else ''
+        symbol = symbol_for_region(region)
+        label_rows.append([raw[0]] + [format_fee_value(v, symbol) for v in raw[1:]])
+
     upgrade_text = ws['A8'].value
     upgrade_headers = [ws.cell(row=9, column=c).value for c in range(1, 10)]
+    # 升级费用各列所属区域：根据表头文字判断（德仓/EU -> €，英仓/UK -> £，其余 -> $）
+    upgrade_col_symbols = []
+    for c in range(2, 10):
+        h = str(ws.cell(row=9, column=c).value or '').upper()
+        if '德' in h or 'EU' in h:
+            upgrade_col_symbols.append('€')
+        elif '英' in h or 'UK' in h:
+            upgrade_col_symbols.append('£')
+        else:
+            upgrade_col_symbols.append('$')
     upgrade_rows = []
     for r in (10, 11):
-        upgrade_rows.append([ws.cell(row=r, column=c).value for c in range(1, 10)])
+        raw = [ws.cell(row=r, column=c).value for c in range(1, 10)]
+        upgrade_rows.append([raw[0]] + [format_fee_value(v, upgrade_col_symbols[i]) for i, v in enumerate(raw[1:])])
+
     return {
         'labelText': label_text,
         'labelHeaders': label_headers,
