@@ -187,6 +187,7 @@ def build():
             'name': cfg['name'],
             'subtitle': cfg['subtitle'],
             'compare': cfg['compare'],
+            'region_label': cfg['region_label'],
             'warehouses': list(cfg['warehouses'].keys()),
             'products': extract_region(cfg),
         }

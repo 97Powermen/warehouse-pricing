@@ -4,6 +4,7 @@
       "name": "US区域（美仓）",
       "subtitle": "PNP仓 vs NJ/NY仓 · 双仓对比",
       "compare": true,
+      "region_label": "US",
       "warehouses": [
         "PNP",
         "NJ/NY"
@@ -7015,6 +7016,7 @@
       "name": "EU区域（德仓）",
       "subtitle": "德仓（DEC）· 单仓展示",
       "compare": false,
+      "region_label": "EU",
       "warehouses": [
         "DEC"
       ],
@@ -9831,6 +9833,7 @@
       "name": "UK区域（英仓）",
       "subtitle": "英仓（UK）· 单仓展示",
       "compare": false,
+      "region_label": "UK",
       "warehouses": [
         "UK"
       ],
